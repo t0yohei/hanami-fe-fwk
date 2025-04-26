@@ -1,0 +1,38 @@
+html {
+  font-family: -apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,sans-serif,"Segoe UI Emoji";
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+body {
+  margin: 0 auto;
+  width: 100%;
+  padding: 1rem;
+  line-height: 1.5;
+  overflow-wrap: break-word;
+
+  font-size: 16px;
+  max-width: 80ch;
+}
+
+main {
+  margin: auto;
+  padding: 24px 20px;
+  line-height: 1.8;
+  color: #000000d1;
+
+  max-width: 60ch;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
