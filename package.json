@@ -1,0 +1,20 @@
+{
+  "name": "hanami-fe-fwk-project",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A project to learn how to write a frontend framework",
+  "main": "index.js",
+  "scripts": {
+    "serve:examples": "npx http-server . -o ./examples/"
+  },
+  "keywords": [],
+  "author": "t0yohei <k.t0yohei@gmail.com>",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "packages/runtime"
+  ],
+  "devDependencies": {
+    "jsdom": "^26.1.0"
+  }
+}
