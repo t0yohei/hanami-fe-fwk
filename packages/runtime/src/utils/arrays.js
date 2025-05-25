@@ -4,13 +4,9 @@ export function withoutNulls(arr) {
 
 export function arraysDiff(oldArray, newArray) {
   return {
-    added: newArray.filter(
-      (newItem) => !oldArray.includes(newItem)
-    ),
-    removed: oldArray.filter(
-      (oldItem) => !newArray.includes(oldItem)
-    ),
-  }
+    added: newArray.filter((newItem) => !oldArray.includes(newItem)),
+    removed: oldArray.filter((oldItem) => !newArray.includes(oldItem)),
+  };
 }
 
 export const ARRAY_DIFF_OP = {
@@ -19,7 +15,6 @@ export const ARRAY_DIFF_OP = {
   MOVE: "move",
   NOOP: "noop",
 };
-
 
 class ArrayWithOriginalIndices {
   #array = [];
@@ -83,7 +78,7 @@ class ArrayWithOriginalIndices {
       originalIndex: this.originalIndexAt(index),
       index,
       item: this.#array[index],
-    }
+    };
   }
 
   isAddition(item, fromIdx) {
@@ -93,7 +88,7 @@ class ArrayWithOriginalIndices {
   findIndexFrom(item, fromIndex) {
     for (let i = fromIndex; i < this.length; i++) {
       if (this.#equalsFn(item, this.#array[i])) {
-        return i
+        return i;
       }
     }
 
@@ -105,7 +100,7 @@ class ArrayWithOriginalIndices {
       op: ARRAY_DIFF_OP.ADD,
       index,
       item,
-    }
+    };
 
     this.#array.splice(index, 0, item);
     this.#originalIndices.splice(index, 0, -1);
@@ -122,13 +117,12 @@ class ArrayWithOriginalIndices {
       from: fromIndex,
       index: toIndex,
       item: this.#array[fromIndex],
-    }
+    };
 
     const [_item] = this.#array.splice(fromIndex, 1);
     this.#array.splice(toIndex, 0, _item);
 
-    const [originalIndex] =
-      this.#originalIndices.splice(fromIndex, 1);
+    const [originalIndex] = this.#originalIndices.splice(fromIndex, 1);
     this.#originalIndices.splice(toIndex, 0, originalIndex);
 
     return operation;
@@ -145,7 +139,11 @@ class ArrayWithOriginalIndices {
   }
 }
 
-export function arraysDiffSequence(oldArray, newArray, equalsFn = (a, b) => a === b) {
+export function arraysDiffSequence(
+  oldArray,
+  newArray,
+  equalsFn = (a, b) => a === b
+) {
   const sequence = [];
   const array = new ArrayWithOriginalIndices(oldArray, equalsFn);
 

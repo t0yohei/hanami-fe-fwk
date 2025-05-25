@@ -1,54 +1,52 @@
-import { removeEventListeners } from './events'
-import { DOM_TYPES } from './h'
+import { removeEventListeners } from "./events";
+import { DOM_TYPES } from "./h";
 
 export function destroyDOM(vdom) {
-  const { type } = vdom
+  const { type } = vdom;
 
   switch (type) {
     case DOM_TYPES.TEXT: {
-      removeTextNode(vdom)
+      removeTextNode(vdom);
 
-      break
+      break;
     }
 
     case DOM_TYPES.ELEMENT: {
-      removeElementNode(vdom)
-      break
+      removeElementNode(vdom);
+      break;
     }
 
     case DOM_TYPES.FRAGMENT: {
-      removeFragmentNodes(vdom)
-      break
+      removeFragmentNodes(vdom);
+      break;
     }
 
     default: {
-      throw new Error(`Can't destroy DOM of type: ${type}`)
+      throw new Error(`Can't destroy DOM of type: ${type}`);
     }
   }
 
-  delete vdom.el
+  delete vdom.el;
 }
 
 function removeTextNode(vdom) {
-  const { el } = vdom
-  el.remove()
+  const { el } = vdom;
+  el.remove();
 }
 
-
 function removeElementNode(vdom) {
-  const { el, children, listeners } = vdom
+  const { el, children, listeners } = vdom;
 
-  el.remove()
-  children.forEach(destroyDOM)
+  el.remove();
+  children.forEach(destroyDOM);
 
   if (listeners) {
-    removeEventListeners(listeners, el)
-    delete vdom.listeners
+    removeEventListeners(listeners, el);
+    delete vdom.listeners;
   }
 }
 
-
 function removeFragmentNodes(vdom) {
-  const { children } = vdom
-  children.forEach(destroyDOM)
+  const { children } = vdom;
+  children.forEach(destroyDOM);
 }
