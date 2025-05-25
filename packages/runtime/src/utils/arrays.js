@@ -4,13 +4,9 @@ export function withoutNulls(arr) {
 
 export function arraysDiff(oldArray, newArray) {
   return {
-    added: newArray.filter(
-      (newItem) => !oldArray.includes(newItem)
-    ),
-    removed: oldArray.filter(
-      (oldItem) => !newArray.includes(oldItem)
-    ),
-  }
+    added: newArray.filter((newItem) => !oldArray.includes(newItem)),
+    removed: oldArray.filter((oldItem) => !newArray.includes(oldItem)),
+  };
 }
 
 export const ARRAY_DIFF_OP = {
@@ -20,6 +16,40 @@ export const ARRAY_DIFF_OP = {
   NOOP: "noop",
 };
 
+export function arraysDiffSequence(
+  oldArray,
+  newArray,
+  equalsFn = (a, b) => a === b
+) {
+  const sequence = [];
+  const array = new ArrayWithOriginalIndices(oldArray, equalsFn);
+
+  for (let index = 0; index < newArray.length; index++) {
+    if (array.isRemoval(index, newArray)) {
+      sequence.push(array.removeItem(index));
+      index--;
+      continue;
+    }
+
+    if (array.isNoop(index, newArray)) {
+      sequence.push(array.noopItem(index));
+      continue;
+    }
+
+    const item = newArray[index];
+
+    if (array.isAddition(item, index)) {
+      sequence.push(array.addItem(item, index));
+      continue;
+    }
+
+    sequence.push(array.moveItem(item, index));
+  }
+
+  sequence.push(...array.removeItemsAfter(newArray.length));
+
+  return sequence;
+}
 
 class ArrayWithOriginalIndices {
   #array = [];
@@ -34,6 +64,20 @@ class ArrayWithOriginalIndices {
 
   get length() {
     return this.#array.length;
+  }
+
+  originalIndexAt(index) {
+    return this.#originalIndices[index];
+  }
+
+  findIndexFrom(item, fromIndex) {
+    for (let i = fromIndex; i < this.length; i++) {
+      if (this.#equalsFn(item, this.#array[i])) {
+        return i;
+      }
+    }
+
+    return -1;
   }
 
   isRemoval(index, newArray) {
@@ -73,31 +117,17 @@ class ArrayWithOriginalIndices {
     return this.#equalsFn(item, newItem);
   }
 
-  originalIndexAt(index) {
-    return this.#originalIndices[index];
-  }
-
   noopItem(index) {
     return {
       op: ARRAY_DIFF_OP.NOOP,
-      originalIndex: this.originalIndexAt(index),
       index,
+      originalIndex: this.originalIndexAt(index),
       item: this.#array[index],
-    }
+    };
   }
 
   isAddition(item, fromIdx) {
     return this.findIndexFrom(item, fromIdx) === -1;
-  }
-
-  findIndexFrom(item, fromIndex) {
-    for (let i = fromIndex; i < this.length; i++) {
-      if (this.#equalsFn(item, this.#array[i])) {
-        return i
-      }
-    }
-
-    return -1;
   }
 
   addItem(item, index) {
@@ -105,7 +135,7 @@ class ArrayWithOriginalIndices {
       op: ARRAY_DIFF_OP.ADD,
       index,
       item,
-    }
+    };
 
     this.#array.splice(index, 0, item);
     this.#originalIndices.splice(index, 0, -1);
@@ -122,13 +152,12 @@ class ArrayWithOriginalIndices {
       from: fromIndex,
       index: toIndex,
       item: this.#array[fromIndex],
-    }
+    };
 
     const [_item] = this.#array.splice(fromIndex, 1);
     this.#array.splice(toIndex, 0, _item);
 
-    const [originalIndex] =
-      this.#originalIndices.splice(fromIndex, 1);
+    const [originalIndex] = this.#originalIndices.splice(fromIndex, 1);
     this.#originalIndices.splice(toIndex, 0, originalIndex);
 
     return operation;
@@ -143,35 +172,4 @@ class ArrayWithOriginalIndices {
 
     return operations;
   }
-}
-
-export function arraysDiffSequence(oldArray, newArray, equalsFn = (a, b) => a === b) {
-  const sequence = [];
-  const array = new ArrayWithOriginalIndices(oldArray, equalsFn);
-
-  for (let index = 0; index < newArray.length; index++) {
-    if (array.isRemoval(index, newArray)) {
-      sequence.push(array.removeItem(index));
-      index--;
-      continue;
-    }
-
-    if (array.isNoop(index, newArray)) {
-      sequence.push(array.noopItem(index));
-      continue;
-    }
-
-    const item = newArray[index];
-
-    if (array.isAddition(item, index)) {
-      sequence.push(array.addItem(item, index));
-      continue;
-    }
-
-    sequence.push(array.moveItem(item, index));
-  }
-
-  sequence.push(...array.removeItemsAfter(newArray.length));
-
-  return sequence;
 }

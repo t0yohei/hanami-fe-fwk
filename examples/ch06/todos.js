@@ -1,28 +1,28 @@
-import { createApp, h, hFragment } from 'https://unpkg.com/hanami-fe-fwk@1.0.1'
+import { createApp, h, hFragment } from "https://unpkg.com/hanami-fe-fwk@1.0.1";
 
 const state = {
-  currentTodo: '',
+  currentTodo: "",
   edit: {
     idx: null,
     original: null,
     edited: null,
   },
-  todos: ['Walk the dog', 'Water the plants'],
-}
+  todos: ["Walk the dog", "Water the plants"],
+};
 
 const reducers = {
-  'update-current-todo': (state, currentTodo) => ({
+  "update-current-todo": (state, currentTodo) => ({
     ...state,
     currentTodo,
   }),
 
-  'add-todo': (state) => ({
+  "add-todo": (state) => ({
     ...state,
-    currentTodo: '',
+    currentTodo: "",
     todos: [...state.todos, state.currentTodo],
   }),
 
-  'start-editing-todo': (state, idx) => ({
+  "start-editing-todo": (state, idx) => ({
     ...state,
     edit: {
       idx,
@@ -31,126 +31,126 @@ const reducers = {
     },
   }),
 
-  'edit-todo': (state, edited) => ({
+  "edit-todo": (state, edited) => ({
     ...state,
     edit: { ...state.edit, edited },
   }),
 
-  'save-edited-todo': (state) => {
-    const todos = [...state.todos]
-    todos[state.edit.idx] = state.edit.edited
+  "save-edited-todo": (state) => {
+    const todos = [...state.todos];
+    todos[state.edit.idx] = state.edit.edited;
 
     return {
       ...state,
       edit: { idx: null, original: null, edited: null },
       todos,
-    }
+    };
   },
 
-  'cancel-editing-todo': (state) => ({
+  "cancel-editing-todo": (state) => ({
     ...state,
     edit: { idx: null, original: null, edited: null },
   }),
 
-  'remove-todo': (state, idx) => ({
+  "remove-todo": (state, idx) => ({
     ...state,
     todos: state.todos.filter((_, i) => i !== idx),
   }),
-}
+};
 
 function App(state, emit) {
   return hFragment([
-    h('h1', {}, ['My TODOs']),
+    h("h1", {}, ["My TODOs"]),
     CreateTodo(state, emit),
     TodoList(state, emit),
-  ])
+  ]);
 }
 
 function CreateTodo({ currentTodo }, emit) {
-  return h('div', {}, [
-    h('label', { for: 'todo-input' }, ['New TODO']),
-    h('input', {
-      type: 'text',
-      id: 'todo-input',
+  return h("div", {}, [
+    h("label", { for: "todo-input" }, ["New TODO"]),
+    h("input", {
+      type: "text",
+      id: "todo-input",
       value: currentTodo,
       on: {
-        input: ({ target }) => emit('update-current-todo', target.value),
+        input: ({ target }) => emit("update-current-todo", target.value),
         keydown: ({ key }) => {
-          if (key === 'Enter' && currentTodo.length >= 3) {
-            emit('add-todo')
+          if (key === "Enter" && currentTodo.length >= 3) {
+            emit("add-todo");
           }
         },
       },
     }),
     h(
-      'button',
+      "button",
       {
         disabled: currentTodo.length < 3,
-        on: { click: () => emit('add-todo') },
+        on: { click: () => emit("add-todo") },
       },
-      ['Add']
+      ["Add"]
     ),
-  ])
+  ]);
 }
 
 function TodoList({ todos, edit }, emit) {
   return h(
-    'ul',
+    "ul",
     {},
     todos.map((todo, i) => TodoItem({ todo, i, edit }, emit))
-  )
+  );
 }
 
 function TodoItem({ todo, i, edit }, emit) {
-  const isEditing = edit.idx === i
+  const isEditing = edit.idx === i;
 
   return isEditing
-    ? h('li', {}, [
-        h('input', {
+    ? h("li", {}, [
+        h("input", {
           value: edit.edited,
           on: {
-            input: ({ target }) => emit('edit-todo', target.value),
+            input: ({ target }) => emit("edit-todo", target.value),
           },
         }),
         h(
-          'button',
+          "button",
           {
             on: {
-              click: () => emit('save-edited-todo'),
+              click: () => emit("save-edited-todo"),
             },
           },
-          ['Save'],
+          ["Save"]
         ),
         h(
-          'button',
+          "button",
           {
             on: {
-              click: () => emit('cancel-editing-todo'),
+              click: () => emit("cancel-editing-todo"),
             },
           },
-          ['Cancel'],
+          ["Cancel"]
         ),
       ])
-    : h('li', {}, [
+    : h("li", {}, [
         h(
-          'span',
+          "span",
           {
             on: {
-              dblclick: () => emit('start-editing-todo', i),
+              dblclick: () => emit("start-editing-todo", i),
             },
           },
-          [todo],
+          [todo]
         ),
         h(
-          'button',
+          "button",
           {
             on: {
-              click: () => emit('remove-todo', i)
-            }
+              click: () => emit("remove-todo", i),
+            },
           },
-          ['Done']
+          ["Done"]
         ),
-      ])
+      ]);
 }
 
-createApp({ state, reducers, view: App }).mount(document.body)
+createApp({ state, reducers, view: App }).mount(document.body);

@@ -37,18 +37,18 @@ export function hFragment(vNodes) {
 
 export function extractChildren(vdom) {
   if (vdom.children == null) {
-    return []
+    return [];
   }
 
-  const children = []
+  const children = [];
 
   for (const child of vdom.children) {
     if (child.type === DOM_TYPES.FRAGMENT) {
-      children.push(...extractChildren(child, children))
+      children.push(...extractChildren(child, children));
     } else {
-      children.push(child)
+      children.push(child);
     }
   }
 
-  return children
+  return children;
 }
