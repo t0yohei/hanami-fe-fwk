@@ -1,6 +1,7 @@
 import { DOM_TYPES } from "./h";
 import { setAttributes } from "./attributes";
 import { addEventListeners } from "./events";
+import { extractPropsAndEvents } from "./utils/props";
 
 export function mountDOM(vdom, parentEl, index, hostComponent = null) {
   switch (vdom.type) {
@@ -89,8 +90,9 @@ function createFragmentNodes(vdom, parentEl, index, hostComponent) {
 
 function createComponentNode(vdom, parentEl, index, hostComponent) {
   const Component = vdom.tag;
-  const props = vdom.props;
-  const component = new Component(props);
+
+  const { props, events } = extractPropsAndEvents(vdom);
+  const component = new Component(props, events, hostComponent);
 
   component.mount(parentEl, index);
   vdom.component = component;

@@ -2,6 +2,7 @@ import equal from "fast-deep-equal";
 import { mountDOM } from "./mount-dom";
 import { DOM_TYPES, extractChildren } from "./h";
 import { destroyDOM } from "./destroy-dom";
+import { Dispatcher } from "./dispatcher";
 import { patchDOM } from "./patch-dom";
 import { hasOwnProperty } from "./utils/objects";
 
@@ -10,10 +11,16 @@ export function defineComponent({ render, state, ...methods }) {
     #isMounted = false;
     #vdom = null;
     #hostEl = null;
+    #eventHandlers = null;
+    #parentComponent = null;
+    #dispatcher = new Dispatcher();
+    #subscriptions = [];
 
-    constructor(props = {}) {
+    constructor(props = {}, eventHandlers = {}, parentComponent = null) {
       this.props = props;
       this.state = state ? state(this.props) : {};
+      this.#eventHandlers = eventHandlers;
+      this.#parentComponent = parentComponent;
     }
 
     get elements() {
@@ -72,6 +79,7 @@ export function defineComponent({ render, state, ...methods }) {
 
       this.#vdom = this.render();
       mountDOM(this.#vdom, hostEl, index, this);
+      this.#wireEventHandlers();
 
       this.#hostEl = hostEl;
       this.#isMounted = true;
@@ -83,10 +91,16 @@ export function defineComponent({ render, state, ...methods }) {
       }
 
       destroyDOM(this.#vdom);
+      this.#subscriptions.forEach((unsubscribe) => unsubscribe());
 
       this.#vdom = null;
       this.#hostEl = null;
       this.#isMounted = false;
+      this.#subscriptions = [];
+    }
+
+    emit(eventName, payload) {
+      this.#dispatcher.dispatch(eventName, payload);
     }
 
     #patch() {
@@ -96,6 +110,22 @@ export function defineComponent({ render, state, ...methods }) {
 
       const vdom = this.render();
       this.#vdom = patchDOM(this.#vdom, vdom, this.#hostEl, this);
+    }
+
+    #wireEventHandlers() {
+      this.#subscriptions = Object.entries(this.#eventHandlers).map(
+        ([eventName, handler]) => this.#wireEventHandler(eventName, handler)
+      );
+    }
+
+    #wireEventHandler(eventName, handler) {
+      return this.#dispatcher.subscribe(eventName, (payload) => {
+        if (this.#parentComponent) {
+          handler.call(this.#parentComponent, payload);
+        } else {
+          handler(payload);
+        }
+      });
     }
   }
 
