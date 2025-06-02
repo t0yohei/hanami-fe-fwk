@@ -1,3 +1,4 @@
+import equal from "fast-deep-equal";
 import { mountDOM } from "./mount-dom";
 import { DOM_TYPES, extractChildren } from "./h";
 import { destroyDOM } from "./destroy-dom";
@@ -51,7 +52,12 @@ export function defineComponent({ render, state, ...methods }) {
     }
 
     updateProps(props) {
-      this.props = { ...this.props, ...props };
+      const newProps = { ...this.props, ...props };
+      if (equal(this.props, newProps)) {
+        return;
+      }
+
+      this.props = newProps;
       this.#patch();
     }
 
