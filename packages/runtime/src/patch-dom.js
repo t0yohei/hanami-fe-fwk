@@ -12,6 +12,7 @@ import { DOM_TYPES, extractChildren } from "./h";
 import { arraysDiff, arraysDiffSequence, ARRAY_DIFF_OP } from "./utils/arrays";
 import { objectsDiff } from "./utils/objects";
 import { isNotBlankOrEmptyString } from "./utils/strings";
+import { extractPropsAndEvents } from "./utils/props";
 
 export function patchDOM(oldVdom, newVdom, parentEl, hostComponent = null) {
   if (!areNodesEqual(oldVdom, newVdom)) {
@@ -218,7 +219,7 @@ function patchChildren(oldVdom, newVdom, hostComponent) {
 
 function patchComponent(oldVdom, newVdom) {
   const { component } = oldVdom;
-  const { props } = newVdom;
+  const { props } = extractPropsAndEvents(newVdom);
 
   component.updateProps(props);
 
