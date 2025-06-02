@@ -21,7 +21,13 @@ export function defineComponent({ render, state, ...methods }) {
       }
 
       if (this.#vdom.type === DOM_TYPES.FRAGMENT) {
-        return extractChildren(this.#vdom).map((child) => child.el);
+        return extractChildren(this.#vdom).flatMap((child) => {
+          if (child.type === DOM_TYPES.COMPONENT) {
+            return child.component.elements;
+          }
+
+          return [child.el];
+        });
       }
 
       return [this.#vdom.el];
@@ -41,6 +47,11 @@ export function defineComponent({ render, state, ...methods }) {
 
     updateState(state) {
       this.state = { ...this.state, ...state };
+      this.#patch();
+    }
+
+    updateProps(props) {
+      this.props = { ...this.props, ...props };
       this.#patch();
     }
 

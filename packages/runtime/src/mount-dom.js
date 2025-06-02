@@ -14,6 +14,11 @@ export function mountDOM(vdom, parentEl, index, hostComponent = null) {
       break;
     }
 
+    case DOM_TYPES.COMPONENT: {
+      createComponentNode(vdom, parentEl, index, hostComponent);
+      break;
+    }
+
     case DOM_TYPES.FRAGMENT: {
       createFragmentNodes(vdom, parentEl, index, hostComponent);
       break;
@@ -80,4 +85,14 @@ function createFragmentNodes(vdom, parentEl, index, hostComponent) {
   children.forEach((child, i) =>
     mountDOM(child, parentEl, index ? index + i : null, hostComponent)
   );
+}
+
+function createComponentNode(vdom, parentEl, index, hostComponent) {
+  const Component = vdom.tag;
+  const props = vdom.props;
+  const component = new Component(props);
+
+  component.mount(parentEl, index);
+  vdom.component = component;
+  vdom.el = component.firstElement;
 }
