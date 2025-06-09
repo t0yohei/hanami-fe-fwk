@@ -1,2 +1,3 @@
 export { createApp } from "./app";
-export { h, hFragment, hString } from "./h";
+export { defineComponent } from "./component.js";
+export { DOM_TYPES, h, hFragment, hString } from "./h";
