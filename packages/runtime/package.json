@@ -1,6 +1,6 @@
 {
   "name": "hanami-fe-fwk",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "",
   "main": "dist/hanami-fe-fwk.js",
   "files": [
